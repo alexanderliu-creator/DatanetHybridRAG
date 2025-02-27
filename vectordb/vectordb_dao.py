@@ -31,14 +31,6 @@ class VectorDatabase:
         """
         Create a new table and perform data format validation.
         """
-        if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
-            logging.error("Invalid data format. It should be a list of dictionaries.")
-            raise ValueError("Invalid data format. It should be a list of dictionaries.")
-
-        for item in data:
-            if "vector" not in item or "item" not in item or "price" not in item:
-                logging.error("Data item is missing required fields.")
-                raise ValueError("Data item is missing required fields.")
 
         # Create table
         try:
@@ -108,7 +100,7 @@ class VectorDatabase:
         """
         Perform a semantic search and validate the query vector.
         """
-        if not isinstance(query_vector, list) or len(query_vector) == 0:
+        if len(query_vector) == 0:
             logging.error("Invalid query vector. It must be a non-empty list.")
             raise ValueError("Invalid query vector. It must be a non-empty list.")
 

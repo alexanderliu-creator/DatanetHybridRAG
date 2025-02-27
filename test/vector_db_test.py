@@ -1,6 +1,6 @@
 import logging
-from vectordb.vector_dao import VectorDatabase
 
+from vectordb.vectordb_dao import VectorDatabase
 
 # DPML -> Embedding
 # DPML Summarization -> DPML DOI
