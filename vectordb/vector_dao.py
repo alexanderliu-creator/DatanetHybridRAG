@@ -4,52 +4,133 @@ import logging
 
 class VectorDatabase:
     def __init__(self, uri: str):
-        self.uri = uri
         self.db = self.connect(uri)
 
-    def connect(self, uri: str):
+    @staticmethod
+    def connect(uri: str):
         """
-        连接到数据库并进行检查。
+        Connect to the database and perform a connection check.
         """
         try:
             db = lancedb.connect(uri)
             return db
         except Exception as e:
-            logging.error(f"连接到数据库失败: {e}")
-            raise ValueError(f"无法连接到数据库：{uri}")
+            logging.error(f"Failed to connect to the database: {e}")
+            raise ValueError(f"Unable to connect to database: {uri}")
 
     def open_table(self, table_name: str):
         """
-        打开指定名称的表，并检查是否存在该表。
+        Open the table with the specified name and check if it exists.
         """
         if table_name not in self.db.table_names():
-            logging.warning(f"表 {table_name} 不存在！")
-            raise ValueError(f"表 {table_name} 不存在")
+            logging.warning(f"Table {table_name} does not exist!")
+            raise ValueError(f"Table {table_name} does not exist")
         return self.db.open_table(table_name)
 
     def create_table(self, table_name: str, data: list):
         """
-        创建新表并进行数据格式检查。
+        Create a new table and perform data format validation.
         """
         if not isinstance(data, list) or not all(isinstance(item, dict) for item in data):
-            logging.error("数据格式无效，应为字典列表")
-            raise ValueError("数据格式无效，应为字典列表")
+            logging.error("Invalid data format. It should be a list of dictionaries.")
+            raise ValueError("Invalid data format. It should be a list of dictionaries.")
 
         for item in data:
             if "vector" not in item or "item" not in item or "price" not in item:
-                logging.error("数据项缺少必需字段")
-                raise ValueError("数据项缺少必需字段")
+                logging.error("Data item is missing required fields.")
+                raise ValueError("Data item is missing required fields.")
 
-        # 创建表
-        return self.db.create_table(table_name, data)
+        # Create table
+        try:
+            table = self.db.create_table(table_name, data)
+            logging.info(f"Table {table_name} created successfully.")
+            return table
+        except Exception as e:
+            logging.error(f"Error creating table {table_name}: {e}")
+            raise ValueError(f"Error creating table {table_name}: {e}")
+
+    def read_table(self, table_name: str):
+        """
+        Read and return all data from the table.
+        """
+        table = self.open_table(table_name)
+        try:
+            data = table.to_pandas()
+            return data
+        except Exception as e:
+            logging.error(f"Error reading table {table_name}: {e}")
+            raise ValueError(f"Error reading table {table_name}: {e}")
+
+    def update_data(self, table_name: str, update_condition: dict, new_data: dict):
+        """
+        Update data in the table based on the condition.
+        """
+        if not isinstance(update_condition, dict) or not isinstance(new_data, dict):
+            logging.error("Both update_condition and new_data should be dictionaries.")
+            raise ValueError("Both update_condition and new_data should be dictionaries.")
+
+        table = self.open_table(table_name)
+        try:
+            # Fetch rows to be updated
+            rows_to_update = table.query(update_condition)
+            for row in rows_to_update:
+                # Update the data with new values
+                row.update(new_data)
+
+            table.save()
+            logging.info(f"Table {table_name} updated successfully.")
+        except Exception as e:
+            logging.error(f"Error updating table {table_name}: {e}")
+            raise ValueError(f"Error updating table {table_name}: {e}")
+
+    def delete_data(self, table_name: str, delete_condition: dict):
+        """
+        Delete data from the table based on the condition.
+        """
+        if not isinstance(delete_condition, dict):
+            logging.error("Delete condition should be a dictionary.")
+            raise ValueError("Delete condition should be a dictionary.")
+
+        table = self.open_table(table_name)
+        try:
+            # Fetch rows to delete
+            rows_to_delete = table.query(delete_condition)
+            for row in rows_to_delete:
+                table.delete(row)
+
+            table.save()
+            logging.info(f"Data deleted from table {table_name} successfully.")
+        except Exception as e:
+            logging.error(f"Error deleting data from table {table_name}: {e}")
+            raise ValueError(f"Error deleting data from table {table_name}: {e}")
 
     def search(self, table_name: str, query_vector: list, top_k: int = 2):
         """
-        执行语义搜索，并检查向量的有效性。
+        Perform a semantic search and validate the query vector.
         """
         if not isinstance(query_vector, list) or len(query_vector) == 0:
-            logging.error("查询向量无效，必须为非空列表")
-            raise ValueError("查询向量无效，必须为非空列表")
+            logging.error("Invalid query vector. It must be a non-empty list.")
+            raise ValueError("Invalid query vector. It must be a non-empty list.")
 
         table = self.open_table(table_name)
-        return table.search(query_vector).limit(top_k).to_pandas()
+        try:
+            result = table.search(query_vector).limit(top_k).to_pandas()
+            return result
+        except Exception as e:
+            logging.error(f"Error searching in table {table_name}: {e}")
+            raise ValueError(f"Error searching in table {table_name}: {e}")
+
+    def drop_table(self, table_name: str):
+        """
+        Drop the specified table if it exists.
+        """
+        if table_name not in self.db.table_names():
+            logging.warning(f"Table {table_name} does not exist!")
+            raise ValueError(f"Table {table_name} does not exist")
+
+        try:
+            self.db.drop_table(table_name)
+            logging.info(f"Table {table_name} dropped successfully.")
+        except Exception as e:
+            logging.error(f"Error dropping table {table_name}: {e}")
+            raise ValueError(f"Error dropping table {table_name}: {e}")
