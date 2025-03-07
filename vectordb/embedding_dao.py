@@ -84,22 +84,3 @@ class EmbeddingProcessor:
         except Exception as e:
             logging.error(f"Error saving embeddings to {save_path}: {e}")
             raise ValueError(f"Error saving embeddings to {save_path}")
-
-
-# Example Usage:
-
-# Initialize the EmbeddingProcessor with a specific model
-# embedding_processor = EmbeddingProcessor(model_name='bert-base-uncased')
-
-# Encode a single string
-# text = "这是一个示例文本，用于生成embedding。"
-# embedding = embedding_processor.encode_text(text)
-# print("Single embedding:", embedding)
-
-# Encode a list of texts
-# texts = ["这是第一段文本", "这是第二段文本", "这是第三段文本"]
-# embeddings = embedding_processor.batch_encode(texts)
-# print("Batch embeddings:", embeddings)
-
-# Save embeddings to a file
-# embedding_processor.save_embeddings(embeddings, "embeddings.pkl")

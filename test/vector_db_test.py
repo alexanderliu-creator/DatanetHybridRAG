@@ -2,7 +2,7 @@ import logging
 
 from vectordb.vectordb_dao import VectorDatabase
 
-# DPML -> Embedding
+### HTML -> Embedding
 # DPML Summarization -> DPML DOI
 if __name__ == '__main__':
     # 示例执行
