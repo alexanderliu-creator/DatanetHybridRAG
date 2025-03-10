@@ -101,8 +101,7 @@ def query_by_ids():
 
 
 def drop_collection():
-    llm_util = OllamaLLMUtil()
-    milvus_util = MilvusVectorDBUtil()
+    milvus_util = MilvusVectorDBUtil(uri="http://localhost:19530")
 
     milvus_util.get_native_client().drop_collection("DPMLCollection")
 

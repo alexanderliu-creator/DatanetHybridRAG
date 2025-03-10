@@ -1,7 +1,7 @@
 # Service Address
-DEFAULT_MILVUS_SERVICE_URL = "http://localhost:19530"
-DEFAULT_EMBEDDINGS_API_URL = "http://localhost:11434/api/embeddings"
-DEFAULT_LLM_API_URL = "http://localhost:11434/api/chat"
+DEFAULT_MILVUS_SERVICE_URL = "http://host.docker.internal:19530"
+DEFAULT_EMBEDDINGS_API_URL = "http://host.docker.internal:11434/api/embeddings"
+DEFAULT_LLM_API_URL = "http://host.docker.internal:11434/api/chat"
 
 # Embedding Model
 DEFAULT_EMBEDDING_MODEL = "nomic-embed-text"
