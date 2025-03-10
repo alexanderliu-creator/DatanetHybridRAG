@@ -15,4 +15,3 @@ services:
 #    image: rag-core
 #    ports:
 #      - "5000:5000"
-#    network_mode: bridge
